@@ -1,0 +1,310 @@
+[
+    {
+        "id": "76371105.9eb09",
+        "type": "tab",
+        "label": "SensorUDP Demo",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ea7b0fc3.fd6fd",
+        "type": "yeelight-config",
+        "z": ""
+    },
+    {
+        "id": "f1709be6.bf9848",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "localhost",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "3e95d72d.1aa688",
+        "type": "yeelight",
+        "z": "76371105.9eb09",
+        "name": "",
+        "command": "toggle",
+        "config": "ea7b0fc3.fd6fd",
+        "x": 480,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3773b6d7.ba5f9a",
+        "type": "debug",
+        "z": "76371105.9eb09",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 730,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "28babb.49c7f546",
+        "type": "yeelight",
+        "z": "76371105.9eb09",
+        "name": "",
+        "command": "set_power",
+        "config": "ea7b0fc3.fd6fd",
+        "x": 490,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5d8a533f.5699dc",
+        "type": "inject",
+        "z": "76371105.9eb09",
+        "name": "",
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 190,
+        "y": 360,
+        "wires": [
+            [
+                "28babb.49c7f546"
+            ]
+        ]
+    },
+    {
+        "id": "de2dd820.db1348",
+        "type": "inject",
+        "z": "76371105.9eb09",
+        "name": "",
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 190,
+        "y": 420,
+        "wires": [
+            [
+                "28babb.49c7f546"
+            ]
+        ]
+    },
+    {
+        "id": "66e03131.95e59",
+        "type": "debug",
+        "z": "76371105.9eb09",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 770,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "ae320713.78cbb8",
+        "type": "throttle",
+        "z": "76371105.9eb09",
+        "name": "throttle",
+        "throttleType": "time",
+        "timeLimit": "2",
+        "timeLimitType": "seconds",
+        "countLimit": 0,
+        "blockSize": 0,
+        "locked": false,
+        "x": 320,
+        "y": 300,
+        "wires": [
+            [
+                "3e95d72d.1aa688"
+            ]
+        ]
+    },
+    {
+        "id": "525d42e3.ff156c",
+        "type": "udp in",
+        "z": "76371105.9eb09",
+        "name": "",
+        "iface": "",
+        "port": "1337",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "buffer",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "6b801e0.30be6e4"
+            ]
+        ]
+    },
+    {
+        "id": "159eed51.a7ff83",
+        "type": "function",
+        "z": "76371105.9eb09",
+        "name": "",
+        "func": "var buf = msg.payload;\nvar tmp = [];\nfor(var i =0; i < buf.length/4; i++) {\n    tmp.push(buf.readFloatBE(i*4));\n}\n\nvar acceleration_x = {payload: ''};\nvar acceleration_y = {payload: ''};\nvar acceleration_z = {payload: ''};\nvar gravity_x = {payload: ''};\nvar gravity_y = {payload: ''};\nvar gravity_z = {payload: ''};\nvar rotation_x = {payload: ''};\nvar rotation_y = {payload: ''};\nvar rotation_z = {payload: ''};\nvar orientation_x = {payload: ''};\nvar orientation_y = {payload: ''};\nvar orientation_z = {payload: ''};\nvar ambient = {payload: ''};\nvar proximity = {payload: ''};\n\nacceleration_x.payload = tmp[0];\nacceleration_y.payload = tmp[1]; \nacceleration_z.payload = tmp[2];\ngravity_x.payload = tmp[3];\ngravity_y.payload = tmp[4];\ngravity_z.payload = tmp[5];\nrotation_x.payload = tmp[6];\nrotation_y.payload = tmp[7];\nrotation_z.payload = tmp[8];\norientation_x.payload = tmp[9];  // (Azimuth)\norientation_y.payload = tmp[10]; // (Pitch)\norientation_z.payload = tmp[11]; // (Roll)\n// 12 deprecated \n// 13 deprecated \nambient.payload = tmp[14]; \nproximity.payload = tmp[15]; \n// Keyboard Buttons 1 - 8\n\nreturn [acceleration_x, acceleration_y, acceleration_z, gravity_x, gravity_y, gravity_z, rotation_x, rotation_y, rotation_z, orientation_x, orientation_y, orientation_z, ambient, proximity];",
+        "outputs": 14,
+        "noerr": 0,
+        "x": 390,
+        "y": 140,
+        "wires": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [
+                "3773b6d7.ba5f9a",
+                "7d92e13c.0861c"
+            ]
+        ]
+    },
+    {
+        "id": "bbc140fd.ac11d",
+        "type": "comment",
+        "z": "76371105.9eb09",
+        "name": "UDP Data",
+        "info": "X Acceleration, \nY Acceleration, \nZ Acceleration, \nX Gravity, \nY Gravity, \nZ Gravity, \nX Rotation Rate, \nY Rotation Rate, \nZ Rotation Rate, \nX Orientation (Azimuth), \nY Orientation (Pitch), \nZ Orientation (Roll), \ndeprecated, \ndeprecated, \nAmbient Light, \nProximity, \nKeyboard Buttons 1 - 8\n",
+        "x": 200,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "7d92e13c.0861c",
+        "type": "link out",
+        "z": "76371105.9eb09",
+        "name": "",
+        "links": [
+            "2a389449.79ecfc"
+        ],
+        "x": 635,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "2a389449.79ecfc",
+        "type": "link in",
+        "z": "76371105.9eb09",
+        "name": "",
+        "links": [
+            "7d92e13c.0861c"
+        ],
+        "x": 155,
+        "y": 480,
+        "wires": [
+            [
+                "494e5e3a.a7729"
+            ]
+        ]
+    },
+    {
+        "id": "6b801e0.30be6e4",
+        "type": "throttle",
+        "z": "76371105.9eb09",
+        "name": "throttle",
+        "throttleType": "time",
+        "timeLimit": "100",
+        "timeLimitType": "milliseconds",
+        "countLimit": 0,
+        "blockSize": 0,
+        "locked": false,
+        "x": 200,
+        "y": 180,
+        "wires": [
+            [
+                "159eed51.a7ff83"
+            ]
+        ]
+    },
+    {
+        "id": "494e5e3a.a7729",
+        "type": "function",
+        "z": "76371105.9eb09",
+        "name": "",
+        "func": "if(msg.payload > 5){\n    msg.payload = 1;\n    return msg;\n}\nelse{\n    msg.payload = 0;\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 310,
+        "y": 480,
+        "wires": [
+            [
+                "48daa361.b3e07c"
+            ]
+        ]
+    },
+    {
+        "id": "c29811fd.ee8ed",
+        "type": "throttle",
+        "z": "76371105.9eb09",
+        "name": "throttle",
+        "throttleType": "time",
+        "timeLimit": "0.5",
+        "timeLimitType": "seconds",
+        "countLimit": 0,
+        "blockSize": 0,
+        "locked": false,
+        "x": 460,
+        "y": 420,
+        "wires": [
+            [
+                "28babb.49c7f546"
+            ]
+        ]
+    },
+    {
+        "id": "48daa361.b3e07c",
+        "type": "rbe",
+        "z": "76371105.9eb09",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "property": "payload",
+        "x": 450,
+        "y": 480,
+        "wires": [
+            [
+                "c29811fd.ee8ed"
+            ]
+        ]
+    }
+]
